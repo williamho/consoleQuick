@@ -20,5 +20,14 @@ libraryDependencies ++= Seq(
 initialCommands := """
   import com.typesafe.config._
   import play.api.libs.json._
+
+  import shapeless._
+  import shapeless.ops.function._
+  import shapeless.syntax.std._
+  import shapeless.syntax.std.function._
+  import shapeless.syntax.std.traversable._
+  import shapeless.record._
+  import shapeless.ops.record._
+  import shapeless.syntax.singleton._
 """
 

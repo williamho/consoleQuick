@@ -22,14 +22,6 @@ class Spec extends Specification {
     }
 
     applyL(1 :: 2 :: 3 :: HNil, sum3 _) must_== 6
-
-    /*
-    def applyAndThen[L <: HList, F, R, Out](f: F, g: R => Out)(implicit f2p: FnToProduct.Aux[F, L => R]) = {
-      f.toProduct.andThen(g).toProduct
-    }
-
-    applyAndThen(sum3 _, (x: Int) => x * 100)(1, 2, 3) must_== 600
-    */
   }
 
   "something" >> {
@@ -44,6 +36,39 @@ class Spec extends Specification {
     gen.from(updated) must_== MyClass(100, 5, 3)
 
     updated.values.toList must_== List(100, 5, 3)
+  }
+
+  "some other thing" >> {
+    import shapeless._
+    import shapeless.syntax.singleton._
+    import shapeless.ops.hlist._
+
+    class PartialConstructor[C, Default <: HList, Repr <: HList]
+    (default: Default)
+    (implicit lgen: LabelledGeneric.Aux[C, Repr]) {
+      def apply[Args <: HList, Full <: HList]
+      (args: Args)
+      (implicit prepend: Prepend.Aux[Default, Args, Full],
+        align: Align[Full, Repr]): C =
+          lgen.from(align(default ++ args))
+    }
+
+    class Reshaper[C]() {
+      def apply[Default <: HList, Repr <: HList]
+      (default: Default)
+      (implicit lgen: LabelledGeneric.Aux[C, Repr]) =
+        new PartialConstructor[C, Default, Repr](default)
+    }
+
+    def reshape[C] = new Reshaper[C]
+
+    case class MyClass(a: Double, b: String, c: Int)
+
+    val default = 'b ->> "Hello" :: HNil
+
+    val r = reshape[MyClass](default)
+
+    r('a ->> 123.4 :: 'c ->> 534 :: HNil) must_== MyClass(123.4, "Hello", 534)
   }
 }
 
