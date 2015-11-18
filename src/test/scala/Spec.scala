@@ -2,6 +2,7 @@ import org.specs2.mutable._
 
 import com.typesafe.config._
 import play.api.libs.json._
+import scala.concurrent._
 
 import shapeless._
 import shapeless.ops.function._
@@ -10,10 +11,12 @@ import shapeless.syntax.std.function._
 import shapeless.syntax.std.traversable._
 import shapeless.record._
 import shapeless.ops.record._
+import shapeless.ops.hlist._
 import shapeless.syntax.singleton._
 
-class Spec extends Specification {
+import scala.concurrent.ExecutionContext.Implicits.global
 
+class Spec extends Specification {
   "applyL" >> {
     def sum3(a: Int, b: Int, c: Int): Int = a + b + c
 
