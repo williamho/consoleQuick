@@ -6,12 +6,33 @@ import japgolly.scalajs.react.vdom.prefix_<^._
 import org.scalajs.dom.document
 
 object TutorialApp extends JSApp {
-  val HelloMessage = ReactComponentB[String]("HelloMessage")
-    .render($ => <.div("Hello ", $.props))
-    .build
+  case class State(text: String)
+
+  val Echoer = ReactComponentB[Unit]("Echo")
+    .initialState(State("Initial value"))
+    .renderBackend[Backend]
+    .buildU
+
+  class Backend($: BackendScope[Unit, State]) {
+    def render(s: State) = {
+      <.div(
+        <.input(
+          ^.onChange ==> handleChange,
+          ^.value := s.text
+        ),
+        <.div(s.text.toUpperCase)
+      )
+    }
+
+    def handleChange(e: ReactEventI) = {
+      val newState = State(e.target.value)
+      $.setState(newState)
+    }
+  }
 
   def main(): Unit = {
-    ReactDOM.render(HelloMessage("World!"), document.querySelector("#content"))
+    val holder = document.querySelector("#content")
+    ReactDOM.render(Echoer(), holder)
   }
 }
 
