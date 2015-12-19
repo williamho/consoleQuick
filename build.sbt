@@ -20,8 +20,21 @@ jsDependencies in Test += RuntimeDOM
 
 libraryDependencies ++= Seq(
   "org.scala-js" %%% "scalajs-dom" % "0.8.2",
-  "com.lihaoyi" %%% "utest" % "0.3.0" % "test"
+  "com.lihaoyi" %%% "utest" % "0.3.0" % "test",
+  "com.github.japgolly.scalajs-react" %%% "core" % "0.10.2"
 )
+
+jsDependencies ++= Seq(
+  "org.webjars.bower" % "react" % "0.14.3"
+    /        "react-with-addons.js"
+    minified "react-with-addons.min.js"
+    commonJSName "React",
+
+  "org.webjars.bower" % "react" % "0.14.3"
+    /         "react-dom.js"
+    minified  "react-dom.min.js"
+    dependsOn "react-with-addons.js"
+    commonJSName "ReactDOM")
 
 testFrameworks += new TestFramework("utest.runner.Framework")
 
