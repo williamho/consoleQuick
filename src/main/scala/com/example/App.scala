@@ -7,11 +7,11 @@ import org.scalajs.dom.document
 
 object TutorialApp extends JSApp {
   case class State(
-    text: String = "Placeholder",
-    items: List[String] = List.empty)
+    text: String,
+    items: List[String])
 
   val Echoer = ReactComponentB[Unit]("Echo")
-    .initialState(new State)
+    .initialState(State("", List("Some", "Items", "Here")))
     .renderBackend[Backend]
     .buildU
 
@@ -19,8 +19,9 @@ object TutorialApp extends JSApp {
     def render(s: State) = <.div(
       <.form(
         <.input(
-          ^.onChange ==> handleChange,
-          ^.value := s.text
+          ^.value := s.text,
+          ^.placeholder := "TODO",
+          ^.onChange ==> handleChange
         ),
         <.button(
           "Submit",
@@ -28,7 +29,14 @@ object TutorialApp extends JSApp {
         )
       ),
       <.ul(
-        s.items.map(<.li(_))
+        s.items.zipWithIndex.map { case (item: String, index: Int) =>
+          <.li(
+            "[",
+            <.a("x", ^.onClick --> handleRemove(index)),
+            "] ",
+            item
+          )
+        }
       )
     )
 
@@ -44,6 +52,13 @@ object TutorialApp extends JSApp {
 
     def handleChange(e: ReactEventI) = {
       $.modState(s => s.copy(text = e.target.value))
+    }
+
+    def handleRemove(i: Int): Callback = {
+      $.modState { s =>
+        val newItems: List[String] = s.items.take(i) ++ s.items.drop(i+1)
+        s.copy(items = newItems)
+      }
     }
   }
 
