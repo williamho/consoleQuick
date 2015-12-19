@@ -6,27 +6,44 @@ import japgolly.scalajs.react.vdom.prefix_<^._
 import org.scalajs.dom.document
 
 object TutorialApp extends JSApp {
-  case class State(text: String)
+  case class State(
+    text: String = "Placeholder",
+    items: List[String] = List.empty)
 
   val Echoer = ReactComponentB[Unit]("Echo")
-    .initialState(State("Initial value"))
+    .initialState(new State)
     .renderBackend[Backend]
     .buildU
 
   class Backend($: BackendScope[Unit, State]) {
-    def render(s: State) = {
-      <.div(
+    def render(s: State) = <.div(
+      <.form(
         <.input(
           ^.onChange ==> handleChange,
           ^.value := s.text
         ),
-        <.div(s.text.toUpperCase)
+        <.button(
+          "Submit",
+          ^.onClick ==> handleSubmit
+        )
+      ),
+      <.ul(
+        s.items.map(<.li(_))
       )
+    )
+
+    def handleSubmit(e: ReactEventI): Callback = {
+      e.preventDefaultCB >>
+      $.modState { s =>
+        if (s.text.nonEmpty) {
+          val newItems: List[String] = s.items :+ s.text
+          State("", newItems)
+        } else s
+      }
     }
 
     def handleChange(e: ReactEventI) = {
-      val newState = State(e.target.value)
-      $.setState(newState)
+      $.modState(s => s.copy(text = e.target.value))
     }
   }
 
